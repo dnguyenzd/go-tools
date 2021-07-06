@@ -14,3 +14,10 @@ A tweak to above setup is to create a separate Go module for `tools.go` (.i.e. a
 
 ### Disadvantages
 - All go commands related to tooling must be run in `tools` sub-directory, .e.g. `cd tools && go install github.com/golang/mock/mockgen`
+
+### What goes where?
+- Tools/libraries that are required for compilation of main module go to main module `go.mod`
+- Other tools (.e.g. `golangci-lint`) go to tools module `go.mod`
+- Special case: `github.com/golang/mock` module includes `github.com/golang/mock/gomock` and `github.com/golang/mock/mockgen` packages.
+  - `gomock` is required for compilation of main module (since it's imported and used in main module tests), while `mockgen` is only used as a code generation tool and is not needed when compiling main module
+  - in this case, `github.com/golang/mock` can be included as dependency to both main module and tool module. Their version will be tracked separately from each other. `github.com/golang/mock/gomock` will be imported and vendored with main module. `github.com/golang/mock/mockgen` is only in tool module, not vendored together with main module
